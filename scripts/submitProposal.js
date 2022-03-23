@@ -63,6 +63,7 @@ async function main() {
   const provider = new ethers.providers.AlchemyProvider(null, process.env.ALCHEMY_KEY)
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
   
+  // for use with truffle dashboard
   // const provider = new ethers.providers.JsonRpcProvider('http://localhost:24012/rpc')
   // const signer = provider.getSigner()
 

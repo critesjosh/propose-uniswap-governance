@@ -60,7 +60,8 @@ async function main() {
   const description = "Celo Additional Use Grant";
   const michiganAddress = "0x13BDaE8c5F0fC40231F0E6A4ad70196F59138548";
 
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY)
+  const provider = new ethers.providers.AlchemyProvider(null, process.env.ALCHEMY_KEY)
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
 
   // make the proposal
   await governorBravo

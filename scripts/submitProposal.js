@@ -1,22 +1,29 @@
 const ethers = require("ethers");
-const { Contract, utils } = ethers;
 const {
   GOVERNOR_BRAVO_ABI,
   ENS_REGISTRY_ABI,
   ENS_PUBLIC_RESOLVER_ABI,
-} = require("./utils")
+} = require("./utils");
 const { namehash } = require("@ethersproject/hash");
 const { keccak256 } = require("@ethersproject/keccak256");
 const { Interface } = require("@ethersproject/abi");
-require('dotenv').config()
+require("dotenv").config();
+const { callbackify } = require("util");
+
+// required to make truffle dashboard work
+module.exports = callbackify(async () => {
+  await main();
+});
 
 async function main() {
-
   const governorBravoAddress = "0x408ED6354d4973f66138C91495F2f2FCbd8724C3";
-  const governorBravo = new Contract(governorBravoAddress, GOVERNOR_BRAVO_ABI);
+  const governorBravo = new ethers.Contract(
+    governorBravoAddress,
+    GOVERNOR_BRAVO_ABI
+  );
 
   const NODE_TOP_LEVEL = namehash("uniswap.eth");
-  const LABEL = keccak256(utils.toUtf8Bytes("v3-core-license-grants"));
+  const LABEL = keccak256(ethers.utils.toUtf8Bytes("v3-core-license-grants"));
   const OWNER_UNISWAP_GOVERNANCE_TIMELOCK =
     "0x1a9C8182C09F50C8318d769245beA52c32BE35BC";
   const RESOLVER_PUBLIC_ENS_RESOLVER =
@@ -60,16 +67,20 @@ async function main() {
   const description = "Celo Additional Use Grant";
   const michiganAddress = "0x13BDaE8c5F0fC40231F0E6A4ad70196F59138548";
 
-  const provider = new ethers.providers.AlchemyProvider(null, process.env.ALCHEMY_KEY)
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
+  const provider = new ethers.providers.JsonRpcProvider(
+    "http://localhost:24012/rpc"
+  );
+  //const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
+  const signer = provider.getSigner();
 
   // make the proposal
   await governorBravo
-    .connect(wallet)
+    .connect(signer)
     .propose(targets, values, sigs, calldatas, description);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+// uncomment and use process.env.PRIVATE_KEY when not using truffle dashboard 
+// main().catch((error) => {
+//   console.error(error);
+//   process.exitCode = 1;
+// });
